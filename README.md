@@ -25,7 +25,10 @@ npm install
 
 2. Set environment variable (optional, defaults to Render URL):
 ```bash
-# Create .env file
+# Copy the example file
+cp .env.example .env
+
+# Or create manually
 echo "REACT_APP_API_URL=https://card-payment-hso8.onrender.com" > .env
 ```
 
@@ -45,10 +48,10 @@ npm start
 3. Connect your Git repository (or upload files)
 4. Configure:
    - **Name**: `unified-checkout-test` (or your choice)
-   - **Build Command**: `npm install && npm run build`
+   - **Build Command**: `npm install && npm run build` ⚠️ **IMPORTANT: Must include `npm install`**
    - **Publish Directory**: `build`
    - **Environment Variables** (if needed):
-     - `REACT_APP_API_URL`: Your backend API URL
+     - `REACT_APP_API_URL`: Your backend API URL (e.g., `https://card-payment-hso8.onrender.com`)
 
 5. Click "Create Static Site"
 6. Render will provide a URL like: `https://unified-checkout-test.onrender.com`

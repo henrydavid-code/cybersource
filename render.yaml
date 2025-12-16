@@ -2,7 +2,7 @@ services:
   - type: web
     name: unified-checkout-test
     env: static
-    buildCommand: npm ci && npm run build
+    buildCommand: npm install && npm run build
     staticPublishPath: ./build
     envVars:
       - key: REACT_APP_API_URL
