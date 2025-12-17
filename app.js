@@ -2,7 +2,7 @@
 // For Render.com: https://card-payment-hso8.onrender.com
 // For ngrok testing: https://your-ngrok-url.ngrok-free.app
 // For local: http://localhost:4000
-const API_BASE_URL = 'https://card-payment-hso8.onrender.com';
+const API_BASE_URL = 'https://97860815382d.ngrok-free.app';
 
 // State
 let captureContext = null;
