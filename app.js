@@ -2,7 +2,7 @@
 // For Render.com: https://card-payment-hso8.onrender.com
 // For ngrok testing: https://your-ngrok-url.ngrok-free.app
 // For local: http://localhost:4000
-const API_BASE_URL = 'https://97860815382d.ngrok-free.app';
+const API_BASE_URL = 'https://cybersource.onrender.com';
 
 // State
 let captureContext = null;
@@ -201,8 +201,24 @@ async function initializeUnifiedCheckout() {
                 showLoading(false);
             });
         } else {
-            console.warn('Event listeners not supported');
-            showLoading(false);
+            console.warn('Event listeners not supported - using fallback detection');
+            // Fallback: Hide loading after a short delay when form is shown
+            setTimeout(() => {
+                showLoading(false);
+                console.log('Payment form should be visible now');
+            }, 1000);
+            
+            // Fallback: Monitor for token via postMessage (if Unified Checkout uses it)
+            window.addEventListener('message', (event) => {
+                // Only accept messages from CyberSource domains
+                if (event.origin.includes('cybersource.com') || event.origin.includes('testup.cybersource.com')) {
+                    if (event.data && (event.data.type === 'token' || event.data.transientToken)) {
+                        console.log('Token received via postMessage:', event.data);
+                        const transientToken = event.data.transientToken || event.data.token || event.data;
+                        handlePayment(transientToken);
+                    }
+                }
+            });
         }
 
         // Verify containers exist and are visible before calling show()
