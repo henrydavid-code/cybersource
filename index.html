@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unified Checkout Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-lg p-8 max-w-2xl w-full">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Unified Checkout Test</h1>
+        <p class="text-gray-600 mb-6">Test CyberSource Unified Checkout with 3D Secure</p>
+
+        <!-- Configuration Section -->
+        <div id="configSection" class="mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Amount (USD)</label>
+                    <input 
+                        type="number" 
+                        step="0.01" 
+                        min="0.01" 
+                        id="amountInput" 
+                        value="1.50"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Currency</label>
+                    <select 
+                        id="currencySelect"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                        <option value="USD">USD</option>
+                        <option value="KES">KES</option>
+                    </select>
+                </div>
+            </div>
+            <button 
+                id="initBtn"
+                onclick="initializePayment()"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-md transition duration-200"
+            >
+                Initialize Payment Form
+            </button>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="hidden mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
+            <div class="flex justify-between items-start">
+                <div>
+                    <strong class="text-red-800">Error:</strong>
+                    <p id="errorText" class="text-red-700 mt-1"></p>
+                </div>
+                <button onclick="closeError()" class="text-red-600 hover:text-red-800">×</button>
+            </div>
+        </div>
+
+        <!-- Success Message -->
+        <div id="successMessage" class="hidden mb-4 p-4 bg-green-50 border border-green-200 rounded-md">
+            <h3 class="text-green-800 font-semibold mb-2">Payment Successful!</h3>
+            <pre id="successData" class="text-xs bg-white p-3 rounded border overflow-auto max-h-64"></pre>
+        </div>
+
+        <!-- Payment Info -->
+        <div id="paymentInfo" class="hidden mb-4 p-4 bg-gray-50 rounded-md flex justify-between items-center">
+            <div>
+                <p class="text-sm text-gray-600">Amount:</p>
+                <p id="paymentAmount" class="font-semibold text-gray-800"></p>
+            </div>
+            <button 
+                onclick="resetForm()"
+                class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md text-sm transition duration-200"
+            >
+                Reset
+            </button>
+        </div>
+
+        <!-- Payment Container -->
+        <div id="paymentContainer" class="hidden">
+            <div class="border border-gray-300 rounded-md p-6 bg-gray-50 min-h-[400px]">
+                <div id="loadingIndicator" class="flex items-center justify-center py-20">
+                    <div class="text-center">
+                        <div class="loading-spinner mx-auto mb-4"></div>
+                        <p class="text-gray-600">Loading payment form...</p>
+                    </div>
+                </div>
+                <div id="unifiedCheckoutContainer"></div>
+            </div>
+        </div>
+
+        <!-- Info Section -->
+        <div class="mt-6 pt-6 border-t border-gray-200">
+            <h3 class="text-sm font-semibold text-gray-700 mb-2">Configuration</h3>
+            <div class="text-xs text-gray-600 space-y-1">
+                <p><strong>Backend URL:</strong> <span id="backendUrl"></span></p>
+                <p><strong>Current Origin:</strong> <span id="currentOrigin"></span></p>
+                <p><strong>Target Origins:</strong> <span id="targetOrigins"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+

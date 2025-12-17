@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: unified-checkout-test
+    env: static
+    buildCommand: echo "No build needed for static site"
+    staticPublishPath: ./
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://card-payment-hso8.onrender.com
+
