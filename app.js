@@ -227,6 +227,7 @@ async function initializeUnifiedCheckout() {
       }, 1000);
 
       // Fallback: Monitor for token via postMessage (if Unified Checkout uses it)
+      // Also monitor for direct token events on the unifiedPayments instance
       window.addEventListener("message", (event) => {
         // Only accept messages from CyberSource domains
         if (
@@ -244,6 +245,15 @@ async function initializeUnifiedCheckout() {
           }
         }
       });
+
+      // Also check if unifiedPayments has direct methods we can use
+      if (ucInstance && typeof ucInstance.addEventListener === "function") {
+        ucInstance.addEventListener("token", (data) => {
+          console.log("Token received via addEventListener:", data);
+          const transientToken = data.transientToken || data.token || data;
+          handlePayment(transientToken);
+        });
+      }
     }
 
     // Verify containers exist and are visible before calling show()
