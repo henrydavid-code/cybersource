@@ -1,5 +1,8 @@
-// Backend API URL - Update this to your Render.com backend URL
-const API_BASE_URL = 'https://97860815382d.ngrok-free.app';
+// Backend API URL - Update this to your backend URL
+// For Render.com: https://card-payment-hso8.onrender.com
+// For ngrok testing: https://your-ngrok-url.ngrok-free.app
+// For local: http://localhost:4000
+const API_BASE_URL = 'https://card-payment-hso8.onrender.com';
 
 // State
 let captureContext = null;
@@ -62,7 +65,7 @@ async function initializePayment() {
                 country: 'KE',
                 locale: 'en_KE',
                 clientVersion: '0.31',
-                targetOrigins: [window.location.origin],
+                targetOrigins: [window.location.origin.trim()],
             }),
         });
 
@@ -135,8 +138,26 @@ async function initializeUnifiedCheckout() {
     }
 
     try {
-        const container = document.getElementById('unifiedCheckoutContainer');
-        container.innerHTML = '';
+        // Ensure containers are visible and ready
+        const buttonContainer = document.getElementById('buttonPaymentListContainer');
+        const paymentContainer = document.getElementById('paymentContainer');
+        const embeddedContainer = document.getElementById('embeddedPaymentContainer');
+        
+        if (!buttonContainer || !embeddedContainer) {
+            throw new Error('Container elements not found');
+        }
+        
+        // Clear containers and make them visible
+        buttonContainer.innerHTML = '';
+        embeddedContainer.innerHTML = '';
+        paymentContainer.classList.remove('hidden');
+        document.getElementById('configSection').classList.add('hidden');
+        document.getElementById('paymentInfo').classList.remove('hidden');
+        document.getElementById('paymentAmount').textContent = 
+            `${document.getElementById('amountInput').value} ${document.getElementById('currencySelect').value}`;
+        
+        // Wait a bit for DOM to update
+        await new Promise(resolve => setTimeout(resolve, 100));
 
         console.log('Initializing Accept() with capture context...');
         
@@ -184,24 +205,37 @@ async function initializeUnifiedCheckout() {
             showLoading(false);
         }
 
+        // Verify containers exist and are visible before calling show()
+        const buttonEl = document.querySelector('#buttonPaymentListContainer');
+        const embeddedEl = document.querySelector('#embeddedPaymentContainer');
+        
+        if (!buttonEl || !embeddedEl) {
+            throw new Error('Container elements not found');
+        }
+        
+        const buttonRect = buttonEl.getBoundingClientRect();
+        const embeddedRect = embeddedEl.getBoundingClientRect();
+        console.log('Button container dimensions:', buttonRect.width, 'x', buttonRect.height);
+        console.log('Embedded container dimensions:', embeddedRect.width, 'x', embeddedRect.height);
+        
+        if (buttonRect.width === 0 || embeddedRect.width === 0) {
+            console.warn('Container has zero width, but proceeding anyway...');
+        }
+
         // Show the payment form
+        // Unified Checkout requires CSS selectors (strings), not DOM elements
+        // Use separate containers for payment selection and payment screen
         const showConfig = {
             containers: {
-                paymentSelection: container,
-                paymentScreen: container
+                paymentSelection: '#buttonPaymentListContainer',
+                paymentScreen: '#embeddedPaymentContainer'
             }
         };
 
         console.log('Calling unifiedPayments.show()...');
+        console.log('Show config:', JSON.stringify(showConfig, null, 2));
         await unifiedPayments.show(showConfig);
         console.log('Payment form displayed');
-
-        // Show payment section
-        document.getElementById('paymentInfo').classList.remove('hidden');
-        document.getElementById('paymentAmount').textContent = 
-            `${document.getElementById('amountInput').value} ${document.getElementById('currencySelect').value}`;
-        document.getElementById('paymentContainer').classList.remove('hidden');
-        document.getElementById('configSection').classList.add('hidden');
 
     } catch (err) {
         console.error('Error initializing Unified Checkout:', err);
@@ -294,12 +328,12 @@ function resetForm() {
     ucInstance = null;
     clientLibraryLoaded = false;
     
-    if (document.getElementById('unifiedCheckoutContainer')) {
-        document.getElementById('unifiedCheckoutContainer').innerHTML = '';
-    }
+    const buttonContainer = document.getElementById('buttonPaymentListContainer');
+    const embeddedContainer = document.getElementById('embeddedPaymentContainer');
+    if (buttonContainer) buttonContainer.innerHTML = '';
+    if (embeddedContainer) embeddedContainer.innerHTML = '';
     
     hideAllSections();
     showLoading(false);
 }
-
 
