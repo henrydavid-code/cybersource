@@ -2,7 +2,7 @@
 // For Render.com: https://card-payment-hso8.onrender.com
 // For ngrok testing: https://your-ngrok-url.ngrok-free.app
 // For local: http://localhost:4000
-const API_BASE_URL = "https://cybersource.onrender.com";
+const API_BASE_URL = "https://97860815382d.ngrok-free.app";
 
 // State
 let captureContext = null;
@@ -79,14 +79,48 @@ async function initializePayment() {
     );
 
     if (!response.ok) {
-      const errorData = await response
-        .json()
-        .catch(() => ({ message: "Unknown error" }));
-      throw new Error(errorData.message || `HTTP ${response.status}`);
+      // Try to get error message from response
+      let errorMessage = `HTTP ${response.status}`;
+      try {
+        const text = await response.text();
+        if (text) {
+          try {
+            const errorData = JSON.parse(text);
+            errorMessage = errorData.message || errorData.error || errorMessage;
+          } catch (e) {
+            // If not JSON, use the text as error message
+            errorMessage = text.substring(0, 200); // Limit length
+          }
+        }
+      } catch (e) {
+        // If we can't read the response, use default message
+        console.error("Could not read error response:", e);
+      }
+      throw new Error(errorMessage);
     }
 
-    const data = await response.json();
+    // Check if response has content before parsing JSON
+    const responseText = await response.text();
+    if (!responseText || responseText.trim() === "") {
+      throw new Error("Empty response from server");
+    }
+
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (e) {
+      console.error("Invalid JSON response:", responseText.substring(0, 500));
+      throw new Error(`Invalid JSON response: ${e.message}`);
+    }
+
     console.log("Capture context received:", data);
+
+    if (!data || !data.captureContext) {
+      throw new Error(
+        "Invalid capture context response: missing captureContext field"
+      );
+    }
+
     captureContext = data;
 
     // Load Unified Checkout library
